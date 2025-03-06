@@ -8,8 +8,20 @@ from normalize_frames import normalize_frames
 from load_gestures import load_gestures
 
 
-joints = ['head', 'neck', 'left_shoulder', 'left_elbow', 'left_hand', 'right_shoulder', 'right_elbow', 'right_hand', 'torso', 'left_hip', 'right_hip']
-dims = ['x', 'y', 'z']
+joints = [
+    "head",
+    "neck",
+    "left_shoulder",
+    "left_elbow",
+    "left_hand",
+    "right_shoulder",
+    "right_elbow",
+    "right_hand",
+    "torso",
+    "left_hip",
+    "right_hip",
+]
+dims = ["x", "y", "z"]
 
 # remove truncation of numpy array printing
 np.set_printoptions(threshold=sys.maxsize)
@@ -32,11 +44,17 @@ for gs in gesture_sets:
 
 X, Y = np.vstack(samples), np.array(labels)
 
-X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=ratio, random_state=10)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, Y, train_size=ratio, random_state=10
+)
+print(f"X:{X.shape}, Y:{Y.shape}")
+print(f"X_train:{X_train.shape}, X_test:{X_test.shape}")
+print(f"y_train:{y_train.shape}, y_test:{y_test.shape}")
+
 
 # 7. CREATE AND TRAIN MODEL
 
-clf = DecisionTreeClassifier(criterion='gini')
+clf = DecisionTreeClassifier(criterion="gini", random_state=10)
 
 clf.fit(X_train, y_train)
 print("num features: ", clf.feature_importances_.size)
@@ -48,19 +66,32 @@ train_accuracy = accuracy_score(y_train, y_train_pred) * 100
 print("train_accuracy", train_accuracy)
 
 y_test_pred = clf.predict(X_test)
-test_accuracy = accuracy_score(y_test,y_test_pred) * 100
+test_accuracy = accuracy_score(y_test, y_test_pred) * 100
 print("test_accuracy", test_accuracy)
 
 
 # 8. VISUALIZE MODEL
-feature_names = ['frame ' + str(i)+' - '+str(joints[i%11])+' - '+str(dims[i%3]) for i in range(33*num_frames)]
+feature_names = [
+    "frame " + str(i) + " - " + str(joints[i % 11]) + " - " + str(dims[i % 3])
+    for i in range(33 * num_frames)
+]
 
 dot_data = export_graphviz(
     clf,
-    out_file='tree.dot',
+    out_file="tree.dot",
     feature_names=feature_names,
-    class_names=["pan left", "pan right", "pan up", "pan down", "zoom in", "zoom out", "rotate clockwise", "rotate counterclockwise", "point"],
+    class_names=[
+        "pan left",
+        "pan right",
+        "pan up",
+        "pan down",
+        "zoom in",
+        "zoom out",
+        "rotate clockwise",
+        "rotate counterclockwise",
+        "point",
+    ],
     filled=True,
     rounded=True,
-    special_characters=True
+    special_characters=True,
 )
